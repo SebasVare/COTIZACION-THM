@@ -1,0 +1,16 @@
+{
+  "short_name": "Cotizador",
+  "name": "Cotizador THM",
+  "icons": [
+    {
+      "src": "THM.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#1a202c",
+  "display": "standalone",
+  "orientation": "portrait"
+}
