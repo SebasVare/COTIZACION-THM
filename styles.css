@@ -60,8 +60,9 @@ body {
 }
 
 .logo-empresa {
-    max-height: 50px;
+    max-height: 60px;
     width: auto;
+    object-fit: contain;
 }
 
 .titulo-principal {
@@ -215,7 +216,7 @@ th {
 .btn-pdf { background-color: #e53e3e; }
 .btn-excel { background-color: #276749; }
 
-/* ESTILOS DEL MODAL (LISTA DE COTIZACIONES DENTRO DE LA APP) */
+/* ESTILOS DEL MODAL */
 .modal-backdrop {
     display: none;
     position: fixed;
