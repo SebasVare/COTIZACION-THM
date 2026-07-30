@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarEstadoLocal();
     selectIva.addEventListener('change', actualizarTablaVisual);
 
-    // FORMATO DE FOLIO ESTRICTO: dia/mes/numero (Ejemplo: 29/07/01)
+    // FORMATO DE FOLIO DE CORRIDO SIN DIAGONALES: diamesnumero (Ejemplo: 290701)
     function obtenerFolioActual(forzarNuevo = false) {
         const fecha = new Date();
         const mes = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const numCotizacion = String(contador).padStart(2, '0');
-        return `${dia}/${mes}/${numCotizacion}`;
+        return `${dia}${mes}${numCotizacion}`;
     }
 
     // Agregar Artículos
