@@ -1,228 +1,374 @@
+/* Reset y Estilos Globales */
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f7f6;
-    color: #2d3748;
-    margin: 0;
-    padding: 0;
-    padding-bottom: 80px; /* Espacio para barra flotante móvil */
+    background-color: #f1f5f9;
+    color: #1e293b;
+    padding-bottom: 40px;
 }
 
-/* MENÚ SUPERIOR DE ARCHIVO */
-.menu-archivo {
-    background: #1a202c;
+/* Header */
+.app-header {
+    background-color: #1a202c;
+    color: #ffffff;
+    padding: 12px 20px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-app {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+}
+
+.brand h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.menu-archivo {
+    display: flex;
     gap: 8px;
-    padding: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
 }
 
 .btn-menu {
-    background: #3182ce;
-    color: white;
+    background-color: #334155;
+    color: #ffffff;
     border: none;
-    padding: 8px 14px;
+    padding: 8px 12px;
     border-radius: 6px;
-    font-weight: bold;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.btn-menu.btn-highlight {
-    background: #38a169;
-}
-
-.container {
-    background: #ffffff;
-    max-width: 800px;
-    margin: 15px auto;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* CABECERA */
-.header-cotizacion {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 12px;
-    margin-bottom: 15px;
-    gap: 10px;
-}
-
-.logo-empresa {
-    max-height: 50px;
-    width: auto;
-}
-
-.titulo-principal {
-    margin: 0;
-    font-size: 22px;
-    color: #1a202c;
-}
-
-.folio-badge {
-    font-size: 13px;
-    font-weight: bold;
-    color: #3182ce;
-    background: #ebf8ff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid #bee3f8;
-}
-
-/* FORMULARIOS Y GRID MÓVIL */
-.form-group {
-    margin-bottom: 12px;
-}
-
-label {
-    display: block;
+    font-size: 0.85rem;
     font-weight: 600;
-    margin-bottom: 4px;
-    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-input[type="text"], input[type="number"], select {
-    width: 100%;
-    padding: 12px; /* Mejor control táctil en celulares */
-    border: 1px solid #cbd5e0;
-    border-radius: 8px;
-    font-size: 15px;
-    background-color: #fff;
+.btn-menu:active {
+    background-color: #475569;
 }
 
-.articulo-seccion {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 14px;
+/* Contenedor Principal */
+.container {
+    max-width: 900px;
+    margin: 15px auto;
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Tarjetas (Cards) */
+.card {
+    background: #ffffff;
+    padding: 16px;
     border-radius: 10px;
-    margin-bottom: 15px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.articulo-seccion h3 {
-    margin-top: 0;
-    font-size: 15px;
-    color: #2b6cb0;
-    margin-bottom: 10px;
+.card h2 {
+    font-size: 1.05rem;
+    color: #0f172a;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e2e8f0;
 }
 
-/* Grids adaptables para celulares */
-.grid-inputs {
+/* Formulario Grid */
+.grid-form {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
 }
 
-.span-2 {
-    grid-column: span 2;
+.full-width {
+    grid-column: 1 / -1;
 }
 
-/* BOTONES */
-.btn-secondary {
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.form-group input, 
+.form-group select {
     width: 100%;
-    background-color: #4a5568;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #fff;
+    color: #0f172a;
+}
+
+.form-group input:focus, 
+.form-group select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.folio-box {
+    justify-content: center;
+    align-items: flex-end;
+}
+
+#lbl-folio {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #2563eb;
+    background-color: #eff6ff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #bfdbfe;
+}
+
+/* Botones Principales */
+.btn-primario {
+    background-color: #2563eb;
     color: white;
-    padding: 12px;
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
+    width: 100%;
 }
 
-/* TABLA FLUIDA */
-.tabla-contenedor {
+.btn-exito {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    flex: 1;
+}
+
+.btn-secundario {
+    background-color: #0284c7;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Tabla de Artículos */
+.table-responsive {
+    width: 100%;
     overflow-x: auto;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    margin-top: 10px;
 }
 
 th, td {
-    padding: 8px 10px;
+    padding: 10px;
     text-align: left;
-    border-bottom: 1px solid #edf2f7;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.88rem;
 }
 
 th {
-    background-color: #edf2f7;
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
 }
 
-.totales-contenedor {
-    text-align: right;
-    margin-top: 15px;
-    padding: 12px;
-    background: #f7fafc;
-    border-radius: 8px;
-}
-
-.total-destacado {
-    font-weight: bold;
-    font-size: 17px !important;
-    color: #2d3748;
-}
-
-.btn-delete-row {
-    background: #fed7d7;
-    color: #9b2c2c;
+.btn-eliminar-item {
+    background-color: #ef4444;
+    color: white;
     border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
 }
 
-/* BARRA FLOTANTE MÓVIL */
-.barra-acciones-movil {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #ffffff;
+/* Resumen Totales */
+.resumen-totales {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 12px;
+}
+
+.fila-total {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 260px;
+    font-size: 0.95rem;
+}
+
+.gran-total {
+    font-size: 1.15rem;
+    color: #0f172a;
+    border-top: 2px solid #0f172a;
+    padding-top: 4px;
+}
+
+.acciones-exportar {
     display: flex;
     gap: 10px;
-    padding: 10px 20px;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 999;
+    margin-top: 20px;
 }
 
-.btn-pdf, .btn-excel {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: bold;
+/* ==========================================
+   MODAL DE BORRADORES / COTIZACIONES GUARDADAS
+   ========================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 15px;
+}
+
+.modal-contenido {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    max-height: 80vh;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 14px 18px;
+    background: #1a202c;
     color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.6rem;
     cursor: pointer;
 }
 
-.btn-pdf { background-color: #e53e3e; }
-.btn-excel { background-color: #276749; }
-
-/* REGLAS PARA IMPRESIÓN/EXPORTACIÓN */
-.exportando-pdf .tabla-contenedor {
-    overflow: visible !important;
+.modal-body {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
 }
 
-.exportando-pdf input[type="text"] {
-    border: none !important;
-    border-bottom: 1px solid #cbd5e0 !important;
-    background: transparent !important;
-    padding-left: 0 !important;
+/* Tarjetas dentro del Modal */
+.tarjeta-borrador {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-borrador strong {
+    display: block;
+    color: #0f172a;
+    font-size: 0.9rem;
+}
+
+.info-borrador span {
+    font-size: 0.78rem;
+    color: #64748b;
+    display: block;
+    margin-top: 2px;
+}
+
+.acciones-borrador {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-cargar-borrador {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 0.82rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-eliminar-borrador {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.82rem;
+}
+
+/* Ajustes Móvil */
+@media (max-width: 480px) {
+    .app-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .menu-archivo {
+        justify-content: space-between;
+    }
+    .btn-menu {
+        flex: 1;
+    }
+    .acciones-exportar {
+        flex-direction: column;
+    }
 }
