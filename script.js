@@ -46,12 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExportarPdf = document.getElementById('btn-pdf');
     const btnExportarExcel = document.getElementById('btn-excel');
 
-    // Inicializar Folio y Cargar borrador actual
+    // Inicialización del Folio y Estado
     lblFolio.innerText = `Folio: ${obtenerFolioActual(false)}`;
     cargarEstadoLocal();
     selectIva.addEventListener('change', actualizarTablaVisual);
 
-    // FORMATO DE FOLIO: dia/mes/numero (Ejemplo: 29/07/01)
+    // FORMATO DE FOLIO ESTRICTO: dia/mes/numero (Ejemplo: 29/07/01)
     function obtenerFolioActual(forzarNuevo = false) {
         const fecha = new Date();
         const mes = String(fecha.getMonth() + 1).padStart(2, '0');
