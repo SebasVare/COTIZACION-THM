@@ -5,36 +5,50 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     let articulosCotizacion = [];
 
-    // Referencias al DOM
-    const inputCotizador = document.getElementById('input-cotizador');
-    const inputCliente = document.getElementById('input-cliente');
-    const selectIva = document.getElementById('select-iva');
-    const lblFolio = document.getElementById('lbl-folio');
+    // Referencias al DOM (IDs corregidos según tu HTML original)
+    const inputCotizador = document.getElementById('cotizador');
+    const inputCliente = document.getElementById('cliente');
+    const selectIva = document.getElementById('incluirIva');
+    const lblFolio = document.getElementById('folio-cotizacion');
 
-    const formArticulo = document.getElementById('form-articulo');
-    const inputConcepto = document.getElementById('input-concepto');
-    const selectMaterial = document.getElementById('select-material');
-    const selectHerraje = document.getElementById('select-herraje');
-    const selectLuminaria = document.getElementById('select-luminaria');
-    const inputCantidad = document.getElementById('input-cantidad');
-    const inputPrecio = document.getElementById('input-precio');
+    // Sección Materiales
+    const selectGrosorMat = document.getElementById('grosorMaterial');
+    const selectMarcaMat = document.getElementById('marcaMaterial');
+    const inputCantMat = document.getElementById('cantidadMaterial');
+    const inputPrecioMat = document.getElementById('precioMaterial');
+    const btnAddMaterial = document.getElementById('btn-agregar-material');
 
-    const tbodyArticulos = document.getElementById('tbody-articulos');
+    // Sección Herrajes
+    const selectTipoHerraje = document.getElementById('tipoHerraje');
+    const inputCantHerraje = document.getElementById('cantidadHerraje');
+    const inputPrecioHerraje = document.getElementById('precioHerraje');
+    const btnAddHerraje = document.getElementById('btn-agregar-herraje');
+
+    // Sección Luminaria
+    const selectTipoLuminaria = document.getElementById('tipoLuminaria');
+    const inputCantLuminaria = document.getElementById('cantidadLuminaria');
+    const inputPrecioLuminaria = document.getElementById('precioLuminaria');
+    const btnAddLuminaria = document.getElementById('btn-agregar-luminaria');
+
+    // Tabla y Totales
+    const tablaHistorial = document.getElementById('tablaHistorial')?.querySelector('tbody');
     const lblSubtotal = document.getElementById('lbl-subtotal');
     const lblIva = document.getElementById('lbl-iva');
     const lblTotal = document.getElementById('lbl-total');
-    const boxIva = document.getElementById('box-iva');
+    const pIva = document.getElementById('p-iva');
 
+    // Botones del Menú Superior
     const btnMenuNuevo = document.getElementById('btn-menu-nuevo');
-    const btnMenuGuardar = document.getElementById('btn-menu-guardar');
+    const btnMenuGuardar = document.getElementById('btn-menu-guardar-json');
     const btnMenuAbrir = document.getElementById('btn-menu-abrir');
 
+    // Modal Borradores
     const modalCotizaciones = document.getElementById('modal-cotizaciones');
-    const btnCerrarModal = document.getElementById('btn-cerrar-modal');
     const listaCotizaciones = document.getElementById('lista-cotizaciones-guardadas');
 
-    const btnExportarPdf = document.getElementById('btn-exportar-pdf');
-    const btnExportarExcel = document.getElementById('btn-exportar-excel');
+    // Exportación
+    const btnExportarPdf = document.getElementById('btn-pdf');
+    const btnExportarExcel = document.getElementById('btn-excel');
 
     // ==========================================
     // INICIALIZACIÓN
@@ -42,9 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializar();
 
     function inicializar() {
-        lblFolio.innerText = `Folio: ${obtenerFolioActual(false)}`;
+        if (lblFolio) lblFolio.innerText = `Folio: ${obtenerFolioActual(false)}`;
         cargarEstadoLocal();
-        selectIva.addEventListener('change', actualizarTablaVisual);
+        if (selectIva) selectIva.addEventListener('change', actualizarTablaVisual);
     }
 
     // ==========================================
@@ -68,62 +82,91 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // AGREGAR ARTÍCULO A LA LISTA
+    // AGREGAR ARTÍCULOS POR SECCIÓN
     // ==========================================
-    formArticulo.addEventListener('submit', (e) => {
-        e.preventDefault();
 
-        const conceptoBase = inputConcepto.value.trim();
-        const material = selectMaterial.value;
-        const herraje = selectHerraje.value;
-        const luminaria = selectLuminaria.value;
-        const cantidad = parseInt(inputCantidad.value) || 1;
-        const precioUnitario = parseFloat(inputPrecio.value) || 0;
+    // 1. Agregar Material
+    if (btnAddMaterial) {
+        btnAddMaterial.addEventListener('click', () => {
+            const grosor = selectGrosorMat.value;
+            const marca = selectMarcaMat.value;
+            const cant = parseInt(inputCantMat.value) || 1;
+            const precio = parseFloat(inputPrecioMat.value) || 0;
 
-        // Detalle de herrajes/materiales integrados
-        let detalles = [];
-        if (material) detalles.push(`Mat: ${material}`);
-        if (herraje) detalles.push(`Herr: ${herraje}`);
-        if (luminaria) detalles.push(`Lum: ${luminaria}`);
+            const concepto = `Material ${marca} (${grosor})`;
+            agregarArticulo(concepto, cant, precio);
 
-        const descripcionCompleta = detalles.length > 0 
-            ? `${conceptoBase} (${detalles.join(' | ')})` 
-            : conceptoBase;
+            // Reset campos
+            inputPrecioMat.value = '';
+            inputCantMat.value = '1';
+        });
+    }
 
+    // 2. Agregar Herraje
+    if (btnAddHerraje) {
+        btnAddHerraje.addEventListener('click', () => {
+            const herraje = selectTipoHerraje.value;
+            const cant = parseInt(inputCantHerraje.value) || 1;
+            const precio = parseFloat(inputPrecioHerraje.value) || 0;
+
+            const concepto = `Herraje: ${herraje}`;
+            agregarArticulo(concepto, cant, precio);
+
+            inputPrecioHerraje.value = '';
+            inputCantHerraje.value = '1';
+        });
+    }
+
+    // 3. Agregar Luminaria
+    if (btnAddLuminaria) {
+        btnAddLuminaria.addEventListener('click', () => {
+            const luminaria = selectTipoLuminaria.value;
+            const cant = parseInt(inputCantLuminaria.value) || 1;
+            const precio = parseFloat(inputPrecioLuminaria.value) || 0;
+
+            const concepto = `Luminaria: ${luminaria}`;
+            agregarArticulo(concepto, cant, precio);
+
+            inputPrecioLuminaria.value = '';
+            inputCantLuminaria.value = '1';
+        });
+    }
+
+    function agregarArticulo(concepto, cantidad, precioUnitario) {
         const nuevoArticulo = {
             id: Date.now(),
-            concepto: descripcionCompleta,
+            concepto: concepto,
             cantidad: cantidad,
             precioUnitario: precioUnitario,
             subtotal: cantidad * precioUnitario
         };
 
         articulosCotizacion.push(nuevoArticulo);
-
-        // Reset de campos
-        inputConcepto.value = '';
-        selectMaterial.value = '';
-        selectHerraje.value = '';
-        selectLuminaria.value = '';
-        inputCantidad.value = '1';
-        inputPrecio.value = '';
-        inputConcepto.focus();
-
         guardarYActualizar();
-    });
+    }
 
     // ==========================================
     // CÁLCULOS Y ACTUALIZACIÓN VISUAL
     // ==========================================
     function guardarYActualizar() {
         localStorage.setItem('articulosCotizacion_actual', JSON.stringify(articulosCotizacion));
-        localStorage.setItem('cotizador_nombre', inputCotizador.value);
-        localStorage.setItem('cliente_nombre', inputCliente.value);
+        if (inputCotizador) localStorage.setItem('cotizador_nombre', inputCotizador.value);
+        if (inputCliente) localStorage.setItem('cliente_nombre', inputCliente.value);
         actualizarTablaVisual();
     }
 
     function actualizarTablaVisual() {
-        tbodyArticulos.innerHTML = '';
+        if (!tablaHistorial) return;
+        tablaHistorial.innerHTML = '';
+
+        if (articulosCotizacion.length === 0) {
+            tablaHistorial.innerHTML = `<tr id="fila-vacia"><td colspan="5" style="text-align: center; color: #a0aec0;">No hay artículos en la cotización</td></tr>`;
+            if (lblSubtotal) lblSubtotal.innerText = '$0.00';
+            if (lblIva) lblIva.innerText = '$0.00';
+            if (lblTotal) lblTotal.innerText = '$0.00';
+            return;
+        }
+
         let subtotalAcumulado = 0;
 
         articulosCotizacion.forEach((item) => {
@@ -131,13 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><strong>${item.cantidad}</strong></td>
                 <td>${item.concepto}</td>
+                <td><strong>${item.cantidad}</strong></td>
                 <td>$${item.precioUnitario.toFixed(2)}</td>
                 <td><strong>$${item.subtotal.toFixed(2)}</strong></td>
-                <td style="text-align: center;"><button class="btn-eliminar-item" data-id="${item.id}">🗑️</button></td>
+                <td class="no-exportar" style="text-align: center;"><button type="button" class="btn-eliminar-item" data-id="${item.id}" style="background:none; border:none; cursor:pointer;">🗑️</button></td>
             `;
-            tbodyArticulos.appendChild(tr);
+            tablaHistorial.appendChild(tr);
         });
 
         // Eventos para eliminar artículos individuales
@@ -150,15 +193,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Cálculo de IVA y Totales
-        const incluirIva = selectIva.value === 'si';
+        const incluirIva = selectIva ? selectIva.value === 'si' : true;
         const montoIva = incluirIva ? (subtotalAcumulado * 0.16) : 0;
         const totalFinal = subtotalAcumulado + montoIva;
 
-        lblSubtotal.innerText = `$${subtotalAcumulado.toFixed(2)}`;
-        lblIva.innerText = `$${montoIva.toFixed(2)}`;
-        lblTotal.innerText = `$${totalFinal.toFixed(2)}`;
-
-        boxIva.style.display = incluirIva ? 'flex' : 'none';
+        if (lblSubtotal) lblSubtotal.innerText = `$${subtotalAcumulado.toFixed(2)}`;
+        if (lblIva) lblIva.innerText = `$${montoIva.toFixed(2)}`;
+        if (lblTotal) lblTotal.innerText = `$${totalFinal.toFixed(2)}`;
+        if (pIva) pIva.style.display = incluirIva ? 'block' : 'none';
     }
 
     function cargarEstadoLocal() {
@@ -166,8 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (guardados) {
             articulosCotizacion = JSON.parse(guardados);
         }
-        inputCotizador.value = localStorage.getItem('cotizador_nombre') || '';
-        inputCliente.value = localStorage.getItem('cliente_nombre') || '';
+        if (inputCotizador) inputCotizador.value = localStorage.getItem('cotizador_nombre') || '';
+        if (inputCliente) inputCliente.value = localStorage.getItem('cliente_nombre') || '';
         actualizarTablaVisual();
     }
 
@@ -176,65 +218,69 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
 
     // 1. NUEVA COTIZACIÓN
-    btnMenuNuevo.addEventListener('click', () => {
-        if (confirm('¿Iniciar nueva cotización? Se limpiarán los datos actuales.')) {
-            articulosCotizacion = [];
-            localStorage.removeItem('articulosCotizacion_actual');
-            inputCliente.value = '';
-            lblFolio.removeAttribute('data-folio-activo');
-            lblFolio.innerText = `Folio: ${obtenerFolioActual(true)}`;
-            actualizarTablaVisual();
-        }
-    });
-
-    // 2. GUARDAR BORRADOR EN MEMORIA DE LA APP
-    btnMenuGuardar.addEventListener('click', () => {
-        if (articulosCotizacion.length === 0) {
-            alert('No hay artículos para guardar.');
-            return;
-        }
-
-        const folioActivo = lblFolio.getAttribute('data-folio-activo') || obtenerFolioActual(false);
-        const clienteNombre = inputCliente.value.trim() || 'Cliente General';
-        const fechaRegistro = new Date().toLocaleDateString('es-MX', { 
-            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' 
+    if (btnMenuNuevo) {
+        btnMenuNuevo.addEventListener('click', () => {
+            if (confirm('¿Iniciar nueva cotización? Se limpiarán los datos actuales.')) {
+                articulosCotizacion = [];
+                localStorage.removeItem('articulosCotizacion_actual');
+                if (inputCliente) inputCliente.value = '';
+                if (lblFolio) {
+                    lblFolio.removeAttribute('data-folio-activo');
+                    lblFolio.innerText = `Folio: ${obtenerFolioActual(true)}`;
+                }
+                actualizarTablaVisual();
+            }
         });
+    }
 
-        const borradorData = {
-            id: 'cot_' + Date.now(),
-            folio: folioActivo,
-            cotizador: inputCotizador.value,
-            cliente: clienteNombre,
-            incluirIva: selectIva.value,
-            fecha: fechaRegistro,
-            articulos: articulosCotizacion
-        };
+    // 2. GUARDAR BORRADOR EN LA MEMORIA DE LA APP
+    if (btnMenuGuardar) {
+        btnMenuGuardar.addEventListener('click', () => {
+            if (articulosCotizacion.length === 0) {
+                alert('No hay artículos para guardar.');
+                return;
+            }
 
-        let misBorradores = JSON.parse(localStorage.getItem('mis_borradores_thm') || '[]');
+            const folioActivo = lblFolio ? (lblFolio.getAttribute('data-folio-activo') || lblFolio.innerText.replace('Folio: ', '')) : obtenerFolioActual(false);
+            const clienteNombre = inputCliente?.value.trim() || 'Cliente General';
+            const fechaRegistro = new Date().toLocaleDateString('es-MX', { 
+                day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' 
+            });
 
-        // Si el folio existe se reemplaza, si no, se agrega al inicio
-        const indexExistente = misBorradores.findIndex(b => b.folio === folioActivo);
-        if (indexExistente !== -1) {
-            misBorradores[indexExistente] = borradorData;
-        } else {
-            misBorradores.unshift(borradorData);
-        }
+            const borradorData = {
+                id: 'cot_' + Date.now(),
+                folio: folioActivo,
+                cotizador: inputCotizador?.value || '',
+                cliente: clienteNombre,
+                incluirIva: selectIva?.value || 'si',
+                fecha: fechaRegistro,
+                articulos: articulosCotizacion
+            };
 
-        localStorage.setItem('mis_borradores_thm', JSON.stringify(misBorradores));
-        alert(`✅ Cotización (${folioActivo}) guardada correctamente en la app.`);
-    });
+            let misBorradores = JSON.parse(localStorage.getItem('mis_borradores_thm') || '[]');
 
-    // 3. ABRIR VISOR INTERNO
-    btnMenuAbrir.addEventListener('click', () => {
-        renderizarListaBorradores();
-        modalCotizaciones.style.display = 'flex';
-    });
+            const indexExistente = misBorradores.findIndex(b => b.folio === folioActivo);
+            if (indexExistente !== -1) {
+                misBorradores[indexExistente] = borradorData;
+            } else {
+                misBorradores.unshift(borradorData);
+            }
 
-    btnCerrarModal.addEventListener('click', () => {
-        modalCotizaciones.style.display = 'none';
-    });
+            localStorage.setItem('mis_borradores_thm', JSON.stringify(misBorradores));
+            alert(`✅ Cotización (${folioActivo}) guardada correctamente en la app.`);
+        });
+    }
+
+    // 3. ABRIR VISOR INTERNO (MODAL)
+    if (btnMenuAbrir) {
+        btnMenuAbrir.addEventListener('click', () => {
+            renderizarListaBorradores();
+            if (modalCotizaciones) modalCotizaciones.style.display = 'flex';
+        });
+    }
 
     function renderizarListaBorradores() {
+        if (!listaCotizaciones) return;
         let borradores = JSON.parse(localStorage.getItem('mis_borradores_thm') || '[]');
         listaCotizaciones.innerHTML = '';
 
@@ -246,20 +292,21 @@ document.addEventListener('DOMContentLoaded', () => {
         borradores.forEach((borrador, index) => {
             const item = document.createElement('div');
             item.className = 'tarjeta-borrador';
+            item.style.cssText = "background:#f7fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;";
             item.innerHTML = `
                 <div class="info-borrador">
-                    <strong>${borrador.cliente} (${borrador.folio})</strong>
-                    <span>${borrador.fecha} • ${borrador.articulos.length} artículo(s)</span>
+                    <strong style="display:block; color:#2d3748;">${borrador.cliente} (${borrador.folio})</strong>
+                    <span style="font-size:0.8rem; color:#718096;">${borrador.fecha} • ${borrador.articulos.length} artículo(s)</span>
                 </div>
-                <div class="acciones-borrador">
-                    <button class="btn-cargar-borrador" data-index="${index}">Cargar</button>
-                    <button class="btn-eliminar-borrador" data-index="${index}">🗑️</button>
+                <div class="acciones-borrador" style="display:flex; gap:6px;">
+                    <button type="button" class="btn-cargar-borrador" data-index="${index}" style="background:#3182ce; color:white; border:none; padding:6px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">Cargar</button>
+                    <button type="button" class="btn-eliminar-borrador" data-index="${index}" style="background:#e53e3e; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer;">🗑️</button>
                 </div>
             `;
             listaCotizaciones.appendChild(item);
         });
 
-        // Eventos de los botones dentro del modal
+        // Eventos para Cargar y Eliminar Borradores
         document.querySelectorAll('.btn-cargar-borrador').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const idx = e.target.getAttribute('data-index');
@@ -282,46 +329,63 @@ document.addEventListener('DOMContentLoaded', () => {
     function cargarBorradorDirecto(datos) {
         if (confirm(`¿Cargar la cotización de "${datos.cliente}"?`)) {
             articulosCotizacion = datos.articulos;
-            inputCotizador.value = datos.cotizador || '';
-            inputCliente.value = datos.cliente || '';
-            selectIva.value = datos.incluirIva || 'si';
+            if (inputCotizador) inputCotizador.value = datos.cotizador || '';
+            if (inputCliente) inputCliente.value = datos.cliente || '';
+            if (selectIva) selectIva.value = datos.incluirIva || 'si';
 
-            lblFolio.setAttribute('data-folio-activo', datos.folio);
-            lblFolio.innerText = `Folio: ${datos.folio}`;
+            if (lblFolio) {
+                lblFolio.setAttribute('data-folio-activo', datos.folio);
+                lblFolio.innerText = `Folio: ${datos.folio}`;
+            }
 
             guardarYActualizar();
-            modalCotizaciones.style.display = 'none';
+            if (modalCotizaciones) modalCotizaciones.style.display = 'none';
         }
+    }
+
+    // Cierre del modal dando clic al botón de cerrar (&times;) o fuera de él
+    window.cerrarModalCotizaciones = function() {
+        if (modalCotizaciones) modalCotizaciones.style.display = 'none';
+    };
+
+    if (modalCotizaciones) {
+        modalCotizaciones.addEventListener('click', (e) => {
+            if (e.target === modalCotizaciones) cerrarModalCotizaciones();
+        });
     }
 
     // ==========================================
     // EXPORTACIONES
     // ==========================================
-    btnExportarPdf.addEventListener('click', () => {
-        if (articulosCotizacion.length === 0) {
-            alert('Agrega al menos un artículo antes de exportar.');
-            return;
-        }
-        window.print();
-    });
-
-    btnExportarExcel.addEventListener('click', () => {
-        if (articulosCotizacion.length === 0) {
-            alert('Agrega al menos un artículo antes de exportar.');
-            return;
-        }
-
-        let csvContent = "data:text/csv;charset=utf-8,Cant,Concepto,Precio Unitario,Subtotal\n";
-        articulosCotizacion.forEach(row => {
-            csvContent += `"${row.cantidad}","${row.concepto}","${row.precioUnitario}","${row.subtotal}"\n`;
+    if (btnExportarPdf) {
+        btnExportarPdf.addEventListener('click', () => {
+            if (articulosCotizacion.length === 0) {
+                alert('Agrega al menos un artículo antes de exportar.');
+                return;
+            }
+            window.print();
         });
+    }
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Cotizacion_${inputCliente.value || 'General'}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
+    if (btnExportarExcel) {
+        btnExportarExcel.addEventListener('click', () => {
+            if (articulosCotizacion.length === 0) {
+                alert('Agrega al menos un artículo antes de exportar.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Concepto,Cantidad,Precio Unitario,Subtotal\n";
+            articulosCotizacion.forEach(row => {
+                csvContent += `"${row.concepto}","${row.cantidad}","${row.precioUnitario}","${row.subtotal}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Cotizacion_${inputCliente?.value || 'General'}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
 });
