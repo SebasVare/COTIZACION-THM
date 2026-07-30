@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let articulosCotizacion = [];
 
-    // Referencias a elementos del DOM
+    // Referencias al DOM
     const inputCotizador = document.getElementById('cotizador');
     const inputCliente = document.getElementById('cliente');
     const selectIva = document.getElementById('select-iva');
@@ -34,38 +34,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const lblTotal = document.getElementById('lbl-total');
     const boxIva = document.getElementById('box-iva');
 
-    // Acciones del Menú Superior
+    // Acciones Menú Superior & Modal
     const btnMenuNuevo = document.getElementById('btn-menu-nuevo');
     const btnMenuGuardar = document.getElementById('btn-menu-guardar');
     const btnMenuAbrir = document.getElementById('btn-menu-abrir');
+    const modalLista = document.getElementById('modal-lista');
+    const btnCerrarModal = document.getElementById('btn-cerrar-modal');
+    const contenedorLista = document.getElementById('contenedor-lista-guardados');
 
     // Exportación
     const btnExportarPdf = document.getElementById('btn-pdf');
     const btnExportarExcel = document.getElementById('btn-excel');
 
-    // Inicializar Folio y Cargar datos previos si existen
+    // Inicializar Folio y Cargar borrador actual
     lblFolio.innerText = `Folio: ${obtenerFolioActual(false)}`;
     cargarEstadoLocal();
     selectIva.addEventListener('change', actualizarTablaVisual);
 
+    // FORMATO DE FOLIO: dia/mes/numero (Ejemplo: 29/07/01)
     function obtenerFolioActual(forzarNuevo = false) {
         const fecha = new Date();
-        const año = fecha.getFullYear().toString().substr(-2);
         const mes = String(fecha.getMonth() + 1).padStart(2, '0');
         const dia = String(fecha.getDate()).padStart(2, '0');
-        const fechaHoy = `${año}${mes}${dia}`;
+        const claveDia = `${dia}${mes}`;
 
-        let contador = parseInt(localStorage.getItem('cot_contador_' + fechaHoy) || '1');
+        let contador = parseInt(localStorage.getItem('cot_contador_' + claveDia) || '1');
 
         if (forzarNuevo) {
             contador += 1;
-            localStorage.setItem('cot_contador_' + fechaHoy, contador.toString());
+            localStorage.setItem('cot_contador_' + claveDia, contador.toString());
         }
 
-        return `THM-${fechaHoy}-${String(contador).padStart(2, '0')}`;
+        const numCotizacion = String(contador).padStart(2, '0');
+        return `${dia}/${mes}/${numCotizacion}`;
     }
 
-    // Eventos para agregar artículos a la tabla
+    // Agregar Artículos
     if (btnAddMaterial) {
         btnAddMaterial.addEventListener('click', () => {
             const concepto = `Material ${selectMarcaMat.value} (${selectGrosorMat.value})`;
@@ -171,7 +175,107 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarTablaVisual();
     }
 
-    // Funciones del Menú Superior
+    // SISTEMA INTERNO DE GUARDADO DE COTIZACIONES
+    function obtenerCotizacionesGuardadas() {
+        return JSON.parse(localStorage.getItem('cotizaciones_guardadas_app') || '[]');
+    }
+
+    btnMenuGuardar.addEventListener('click', () => {
+        if (articulosCotizacion.length === 0) {
+            alert('Agrega al menos un artículo antes de guardar.');
+            return;
+        }
+
+        const clienteNombre = inputCliente.value.trim() || 'Cliente Sin Nombre';
+        const folioTexto = lblFolio.innerText.replace('Folio: ', '');
+        const totalTexto = lblTotal.innerText;
+
+        let listaGuardadas = obtenerCotizacionesGuardadas();
+
+        const nuevaCotizacion = {
+            id: folioTexto,
+            fecha: new Date().toLocaleDateString('es-MX'),
+            folio: folioTexto,
+            cotizador: inputCotizador.value,
+            cliente: clienteNombre,
+            incluirIva: selectIva.value,
+            articulos: articulosCotizacion,
+            total: totalTexto
+        };
+
+        const indiceExistente = listaGuardadas.findIndex(c => c.folio === folioTexto);
+        if (indiceExistente !== -1) {
+            listaGuardadas[indiceExistente] = nuevaCotizacion;
+        } else {
+            listaGuardadas.push(nuevaCotizacion);
+        }
+
+        localStorage.setItem('cotizaciones_guardadas_app', JSON.stringify(listaGuardadas));
+        alert(`✅ Cotización "${folioTexto}" de (${clienteNombre}) guardada en la app.`);
+    });
+
+    btnMenuAbrir.addEventListener('click', () => {
+        renderizarListaModal();
+        modalLista.classList.add('activo');
+    });
+
+    btnCerrarModal.addEventListener('click', () => {
+        modalLista.classList.remove('activo');
+    });
+
+    function renderizarListaModal() {
+        const lista = obtenerCotizacionesGuardadas();
+        contenedorLista.innerHTML = '';
+
+        if (lista.length === 0) {
+            contenedorLista.innerHTML = `<p style="text-align: center; color: #718096; padding: 20px;">No tienes cotizaciones guardadas aún.</p>`;
+            return;
+        }
+
+        lista.forEach(cot => {
+            const div = document.createElement('div');
+            div.className = 'tarjeta-cotizacion';
+            div.innerHTML = `
+                <div class="info-cotizacion">
+                    <strong>${cot.cliente}</strong>
+                    <span>Folio: ${cot.folio} | Fecha: ${cot.fecha} | Total: ${cot.total}</span>
+                </div>
+                <div class="acciones-cotizacion">
+                    <button type="button" class="btn-cargar-cot" data-folio="${cot.folio}">Cargar</button>
+                    <button type="button" class="btn-borrar-cot" data-folio="${cot.folio}">🗑️</button>
+                </div>
+            `;
+            contenedorLista.appendChild(div);
+        });
+
+        document.querySelectorAll('.btn-cargar-cot').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const folio = e.target.getAttribute('data-folio');
+                const cot = lista.find(item => item.folio === folio);
+                if (cot) {
+                    articulosCotizacion = cot.articulos;
+                    inputCotizador.value = cot.cotizador || '';
+                    inputCliente.value = cot.cliente || '';
+                    selectIva.value = cot.incluirIva || 'si';
+                    lblFolio.innerText = `Folio: ${cot.folio}`;
+                    guardarYActualizar();
+                    modalLista.classList.remove('activo');
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-borrar-cot').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const folio = e.target.getAttribute('data-folio');
+                if (confirm(`¿Eliminar la cotización ${folio}?`)) {
+                    let listaActualizada = obtenerCotizacionesGuardadas().filter(item => item.folio !== folio);
+                    localStorage.setItem('cotizaciones_guardadas_app', JSON.stringify(listaActualizada));
+                    renderizarListaModal();
+                }
+            });
+        });
+    }
+
     btnMenuNuevo.addEventListener('click', () => {
         if (confirm('¿Iniciar nueva cotización? Se limpiará el formulario.')) {
             articulosCotizacion = [];
@@ -182,36 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    btnMenuGuardar.addEventListener('click', () => {
-        if (articulosCotizacion.length === 0) {
-            alert('Agrega al menos un artículo antes de guardar.');
-            return;
-        }
-        localStorage.setItem('borrador_guardado', JSON.stringify({
-            folio: lblFolio.innerText,
-            cotizador: inputCotizador.value,
-            cliente: inputCliente.value,
-            articulos: articulosCotizacion
-        }));
-        alert('✅ Borrador guardado localmente.');
-    });
-
-    btnMenuAbrir.addEventListener('click', () => {
-        const datos = JSON.parse(localStorage.getItem('borrador_guardado'));
-        if (!datos) {
-            alert('No hay borradores guardados.');
-            return;
-        }
-        if (confirm(`¿Cargar borrador de "${datos.cliente || 'Sin cliente'}"?`)) {
-            articulosCotizacion = datos.articulos;
-            inputCotizador.value = datos.cotizador || '';
-            inputCliente.value = datos.cliente || '';
-            lblFolio.innerText = datos.folio;
-            guardarYActualizar();
-        }
-    });
-
-    // Eventos de Exportación
+    // Exportación
     btnExportarPdf.addEventListener('click', () => {
         if (articulosCotizacion.length === 0) return alert('Agrega al menos un artículo.');
         window.print();
