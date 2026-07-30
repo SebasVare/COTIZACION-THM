@@ -1,192 +1,180 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a202c">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cotizador Móvil</title>
-    <!-- Librería para Excel -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Librería para PDF (html2pdf.js) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <title>Cotizador THM</title>
+    
+    <!-- PWA Config/Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    <link rel="icon" type="image/png" href="THM.png">
+
+    <!-- Estilos de la Aplicación -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- MENÚ SUPERIOR DE ARCHIVO -->
-    <header class="menu-archivo no-exportar">
-        <button type="button" id="btn-menu-nuevo" class="btn-menu">📄 Nuevo</button>
-        <button type="button" id="btn-menu-abrir" class="btn-menu">📂 Abrir</button>
-        <button type="button" id="btn-menu-guardar-json" class="btn-menu btn-highlight">💾 Guardar Borrador</button>
-        <input type="file" id="input-abrir-json" accept=".json" style="display: none;">
+    <!-- Encabezado Principal -->
+    <header class="app-header">
+        <div class="brand">
+            <img src="THM.png" alt="Logo THM" class="logo-app">
+            <h1>Cotizador THM</h1>
+        </div>
+        <div class="menu-archivo">
+            <button id="btn-menu-nuevo" class="btn-menu">📄 Nuevo</button>
+            <button id="btn-menu-guardar" class="btn-menu">💾 Guardar</button>
+            <button id="btn-menu-abrir" class="btn-menu">📂 Abrir</button>
+        </div>
     </header>
 
-    <div class="container" id="contenido-cotizacion">
-        <!-- Cabecera Ajustada para Móvil -->
-        <div class="header-cotizacion">
-            <div class="header-izq">
-                <a href="https://thehomemakersmx.com/" target="_blank" class="enlace-logo-pdf">
-                    <img src="THM.png" alt="Logo THM" class="logo-empresa" onerror="this.style.display='none';">
-                </a>
-            </div>
-            <div class="header-centro">
-                <h2 class="titulo-principal">Cotización</h2>
-            </div>
-            <div class="header-der">
-                <span id="folio-cotizacion" class="folio-badge">Folio: --</span>
-            </div>
-        </div>
-        
-        <form id="cotizacionForm">
-            <div class="form-group">
-                <label for="cotizador">Quien Cotiza / Empresa:</label>
-                <input type="text" id="cotizador" name="cotizador" required placeholder="Ej. THM Carpintería">
-            </div>
-
-            <div class="form-group">
-                <label for="cliente">Cliente / Destinatario:</label>
-                <input type="text" id="cliente" name="cliente" required placeholder="Nombre del cliente">
-            </div>
-
-            <div class="form-group inline-group no-exportar">
-                <label for="incluirIva">¿Incluir IVA (16%)?</label>
-                <select id="incluirIva" name="incluirIva">
-                    <option value="si">Si, agregar IVA</option>
-                    <option value="no">No, sin IVA</option>
-                </select>
-            </div>
-
-            <!-- SECCIÓN 1: MATERIAL -->
-            <div class="articulo-seccion no-exportar">
-                <h3>1. Material</h3>
-                <div class="grid-inputs">
-                    <div class="form-group">
-                        <label for="grosorMaterial">Grosor:</label>
-                        <select id="grosorMaterial">
-                            <option value="15mm">15 mm</option>
-                            <option value="6mm">6 mm</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="marcaMaterial">Tipo / Marca:</label>
-                        <select id="marcaMaterial">
-                            <option value="ARAUCO">ARAUCO</option>
-                            <option value="VESTO">VESTO</option>
-                            <option value="MEL">MEL</option>
-                            <option value="MINA">MINA</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidadMaterial">Cantidad:</label>
-                        <input type="number" id="cantidadMaterial" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioMaterial">Precio Unitario ($):</label>
-                        <input type="number" id="precioMaterial" min="0" step="0.01" placeholder="0.00">
-                    </div>
+    <main class="container">
+        <!-- Tarjeta de Datos Generales -->
+        <section class="card">
+            <h2>Datos Generales</h2>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label for="input-cotizador">Cotizador / Vendedor:</label>
+                    <input type="text" id="input-cotizador" placeholder="Nombre de quien cotiza">
                 </div>
-                <button type="button" id="btn-agregar-material" class="btn-secondary">➕ Agregar Material</button>
-            </div>
-
-            <!-- SECCIÓN 2: HERRAJES -->
-            <div class="articulo-seccion no-exportar">
-                <h3>2. Herrajes</h3>
-                <div class="grid-inputs">
-                    <div class="form-group span-2">
-                        <label for="tipoHerraje">Tipo de Herraje:</label>
-                        <select id="tipoHerraje">
-                            <option value="Bisagras cierre suave">Bisagras cierre suave</option>
-                            <option value="Bisagras cierre normal">Bisagras cierre normal</option>
-                            <option value="Bisagras cierre libre">Bisagras cierre libre</option>
-                            <option value="Tubo ovalado">Tubo ovalado</option>
-                            <option value="Tubo ovalado LED">Tubo ovalado LED</option>
-                            <option value="Perfil LED">Perfil LED</option>
-                            <option value="Perfil LED con pestaña">Perfil LED con pestaña</option>
-                            <option value="Correderas de 300mm">Correderas de 300mm</option>
-                            <option value="Correderas de 350mm">Correderas de 350mm</option>
-                            <option value="Correderas de 400mm">Correderas de 400mm</option>
-                            <option value="Correderas de 450mm">Correderas de 450mm</option>
-                            <option value="Correderas de 500mm">Correderas de 500mm</option>
-                            <option value="Bisagras de libro">Bisagras de libro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidadHerraje">Cantidad:</label>
-                        <input type="number" id="cantidadHerraje" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioHerraje">Precio Unitario ($):</label>
-                        <input type="number" id="precioHerraje" min="0" step="0.01" placeholder="0.00">
-                    </div>
+                <div class="form-group">
+                    <label for="input-cliente">Cliente:</label>
+                    <input type="text" id="input-cliente" placeholder="Nombre del cliente o proyecto">
                 </div>
-                <button type="button" id="btn-agregar-herraje" class="btn-secondary">➕ Agregar Herraje</button>
-            </div>
-
-            <!-- SECCIÓN 3: LUMINARIA -->
-            <div class="articulo-seccion no-exportar">
-                <h3>3. Luminaria</h3>
-                <div class="grid-inputs">
-                    <div class="form-group span-2">
-                        <label for="tipoLuminaria">Tipo de Elemento:</label>
-                        <select id="tipoLuminaria">
-                            <option value="Cable LED">Cable LED</option>
-                            <option value="Cable calibre 16">Cable calibre 16</option>
-                            <option value="Transformador">Transformador</option>
-                            <option value="Botón">Botón</option>
-                            <option value="LED">LED</option>
-                            <option value="Contactos">Contactos</option>
-                            <option value="Apagadores">Apagadores</option>
-                            <option value="Chalupa de sobreponer">Chalupa de sobreponer</option>
-                            <option value="Pasacables">Pasacables</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidadLuminaria">Cantidad:</label>
-                        <input type="number" id="cantidadLuminaria" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioLuminaria">Precio Unitario ($):</label>
-                        <input type="number" id="precioLuminaria" min="0" step="0.01" placeholder="0.00">
-                    </div>
+                <div class="form-group">
+                    <label for="select-iva">Incluir IVA (16%):</label>
+                    <select id="select-iva">
+                        <option value="si" selected>Sí</option>
+                        <option value="no">No</option>
+                    </select>
                 </div>
-                <button type="button" id="btn-agregar-luminaria" class="btn-secondary">➕ Agregar Luminaria</button>
+                <div class="form-group folio-box">
+                    <span id="lbl-folio">Folio: Carga...</span>
+                </div>
             </div>
-        </form>
+        </section>
 
-        <div class="historial-section">
-            <h3>Artículos Agregados</h3>
-            <div class="tabla-contenedor">
-                <table id="tablaHistorial">
+        <!-- Formulario para Agregar Artículos -->
+        <section class="card">
+            <h2>Agregar Artículo</h2>
+            <form id="form-articulo" class="grid-form">
+                <div class="form-group full-width">
+                    <label for="input-concepto">Concepto / Descripción del Mueble:</label>
+                    <input type="text" id="input-concepto" placeholder="Ej. Cocina integral de melamina blanca" required>
+                </div>
+
+                <!-- Sección: Melamina / Tableros -->
+                <div class="form-group">
+                    <label for="select-material">Material / Melamina:</label>
+                    <select id="select-material">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Melamina Blanca 15mm">Melamina Blanca 15mm</option>
+                        <option value="Melamina Color/Diseño 15mm">Melamina Color/Diseño 15mm</option>
+                        <option value="MDF 15mm Tapa">MDF 15mm Tapa</option>
+                        <option value="Enchapado Encino">Enchapado Encino</option>
+                    </select>
+                </div>
+
+                <!-- Sección: Herrajes -->
+                <div class="form-group">
+                    <label for="select-herraje">Herrajes:</label>
+                    <select id="select-herraje">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Bisagra Cierre Lento">Bisagra Cierre Lento</option>
+                        <option value="Corredera Extensión 45cm">Corredera Extensión 45cm</option>
+                        <option value="Corredera Oculta Cierre Lento">Corredera Oculta Cierre Lento</option>
+                        <option value="Jaladera Perfil Aluminio">Jaladera Perfil Aluminio</option>
+                    </select>
+                </div>
+
+                <!-- Sección: Luminarias / Iluminación -->
+                <div class="form-group">
+                    <label for="select-luminaria">Luminarias / Perfiles LED:</label>
+                    <select id="select-luminaria">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Tira LED Cálida + Canal Aluminio">Tira LED Cálida + Canal</option>
+                        <option value="Tira LED Neutra + Canal Aluminio">Tira LED Neutra + Canal</option>
+                        <option value="Sensor de Presencia">Sensor de Presencia</option>
+                        <option value="Transformador / Fuente 12V">Transformador 12V</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="input-cantidad">Cantidad:</label>
+                    <input type="number" id="input-cantidad" min="1" value="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="input-precio">Precio Unitario ($):</label>
+                    <input type="number" id="input-precio" min="0" step="0.01" placeholder="0.00" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <button type="submit" id="btn-agregar" class="btn-primario">➕ Agregar Artículo</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Tabla de Artículos Cotizados -->
+        <section class="card">
+            <h2>Resumen de Cotización</h2>
+            <div class="table-responsive">
+                <table id="tabla-cotizacion">
                     <thead>
                         <tr>
-                            <th>Concepto</th>
                             <th>Cant.</th>
-                            <th>P.U.</th>
+                            <th>Concepto / Detalles</th>
+                            <th>P. Unitario</th>
                             <th>Subtotal</th>
-                            <th class="no-exportar"></th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr id="fila-vacia"><td colspan="5" style="text-align: center; color: #a0aec0;">No hay artículos en la cotización</td></tr>
+                    <tbody id="tbody-articulos">
+                        <!-- Carga dinámica -->
                     </tbody>
                 </table>
             </div>
-            
-            <div class="totales-contenedor">
-                <p>Subtotal: <span id="lbl-subtotal">$0.00</span></p>
-                <p id="p-iva">IVA (16%): <span id="lbl-iva">$0.00</span></p>
-                <p class="total-destacado">Total: <span id="lbl-total">$0.00</span></p>
+
+            <!-- Totales -->
+            <div class="resumen-totales">
+                <div class="fila-total">
+                    <span>Subtotal:</span>
+                    <strong id="lbl-subtotal">$0.00</strong>
+                </div>
+                <div class="fila-total" id="box-iva">
+                    <span>IVA (16%):</span>
+                    <strong id="lbl-iva">$0.00</strong>
+                </div>
+                <div class="fila-total gran-total">
+                    <span>Total:</span>
+                    <strong id="lbl-total">$0.00</strong>
+                </div>
+            </div>
+
+            <!-- Botones de Exportación -->
+            <div class="acciones-exportar">
+                <button id="btn-exportar-pdf" class="btn-exito">📄 Exportar PDF</button>
+                <button id="btn-exportar-excel" class="btn-secundario">📊 Exportar Excel</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Interno para Abrir y Visualizar Cotizaciones Guardadas -->
+    <div id="modal-cotizaciones" class="modal-overlay" style="display: none;">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h3>📂 Cotizaciones Guardadas en el Celular</h3>
+                <button id="btn-cerrar-modal" class="btn-cerrar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="lista-cotizaciones-guardadas" class="lista-borradores">
+                    <!-- Se llena automáticamente con JS -->
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ACCIONES FLOTANTES PARA MÓVIL (PDF / EXCEL) -->
-    <div class="barra-acciones-movil no-exportar">
-        <button type="button" id="btn-pdf" class="btn-pdf">📄 PDF</button>
-        <button type="button" id="btn-excel" class="btn-excel">📥 Excel</button>
-    </div>
-
+    <!-- Script de la Aplicación -->
     <script src="script.js"></script>
 </body>
 </html>
