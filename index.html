@@ -1,203 +1,176 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a202c">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cotizador Móvil</title>
-    <!-- Librería para Excel -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Librería para PDF (html2pdf.js) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Cotizador Móvil THM</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <!-- MENÚ SUPERIOR DE ARCHIVO -->
-    <header class="menu-archivo no-exportar">
+    <nav class="menu-archivo no-exportar">
         <button type="button" id="btn-menu-nuevo" class="btn-menu">📄 Nuevo</button>
-        <button type="button" id="btn-menu-abrir" class="btn-menu" onclick="abrirModalCotizaciones()">📂 Abrir</button>
-        <button type="button" id="btn-menu-guardar-json" class="btn-menu btn-highlight" onclick="guardarCotizacionModal()">💾 Guardar Borrador</button>
-        <input type="file" id="input-abrir-json" accept=".json" style="display: none;">
-    </header>
+        <button type="button" id="btn-menu-abrir" class="btn-menu">📂 Abrir Borrador</button>
+        <button type="button" id="btn-menu-guardar" class="btn-menu btn-highlight">💾 Guardar Borrador</button>
+    </nav>
 
     <div class="container" id="contenido-cotizacion">
-        <!-- Cabecera Ajustada para Móvil -->
-        <div class="header-cotizacion">
-            <div class="header-izq">
-                <a href="https://thehomemakersmx.com/" target="_blank" class="enlace-logo-pdf">
-                    <img src="THM.png" alt="Logo THM" class="logo-empresa" onerror="this.style.display='none';">
-                </a>
-            </div>
-            <div class="header-centro">
-                <h2 class="titulo-principal">Cotización</h2>
-            </div>
-            <div class="header-der">
-                <span id="folio-cotizacion" class="folio-badge">Folio: --</span>
-            </div>
-        </div>
         
-        <form id="cotizacionForm">
-            <div class="form-group">
-                <label for="cotizador">Quien Cotiza / Empresa:</label>
-                <input type="text" id="cotizador" name="cotizador" required placeholder="Ej. THM Carpintería">
+        <!-- CABECERA DE LA COTIZACIÓN -->
+        <header class="header-cotizacion">
+            <img src="THM.png" alt="THM Logo" class="logo-empresa" onerror="this.style.display='none';">
+            <div>
+                <h1 class="titulo-principal">Cotización</h1>
+                <span id="lbl-folio" class="folio-badge">Folio: --</span>
             </div>
+        </header>
 
-            <div class="form-group">
-                <label for="cliente">Cliente / Destinatario:</label>
-                <input type="text" id="cliente" name="cliente" required placeholder="Nombre del cliente">
-            </div>
-
-            <div class="form-group inline-group no-exportar">
-                <label for="incluirIva">¿Incluir IVA (16%)?</label>
-                <select id="incluirIva" name="incluirIva">
-                    <option value="si">Si, agregar IVA</option>
-                    <option value="no">No, sin IVA</option>
-                </select>
-            </div>
-
-            <!-- SECCIÓN 1: MATERIAL -->
-            <div class="articulo-seccion no-exportar">
-                <h3>1. Material</h3>
-                <div class="grid-inputs">
-                    <div class="form-group">
-                        <label for="grosorMaterial">Grosor:</label>
-                        <select id="grosorMaterial">
-                            <option value="15mm">15 mm</option>
-                            <option value="6mm">6 mm</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="marcaMaterial">Tipo / Marca:</label>
-                        <select id="marcaMaterial">
-                            <option value="ARAUCO">ARAUCO</option>
-                            <option value="VESTO">VESTO</option>
-                            <option value="MEL">MEL</option>
-                            <option value="MINA">MINA</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidadMaterial">Cantidad:</label>
-                        <input type="number" id="cantidadMaterial" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioMaterial">Precio Unitario ($):</label>
-                        <input type="number" id="precioMaterial" min="0" step="0.01" placeholder="0.00">
-                    </div>
-                </div>
-                <button type="button" id="btn-agregar-material" class="btn-secondary">➕ Agregar Material</button>
-            </div>
-
-            <!-- SECCIÓN 2: HERRAJES -->
-            <div class="articulo-seccion no-exportar">
-                <h3>2. Herrajes</h3>
-                <div class="grid-inputs">
-                    <div class="form-group span-2">
-                        <label for="tipoHerraje">Tipo de Herraje:</label>
-                        <select id="tipoHerraje">
-                            <option value="Bisagras cierre suave">Bisagras cierre suave</option>
-                            <option value="Bisagras cierre normal">Bisagras cierre normal</option>
-                            <option value="Bisagras cierre libre">Bisagras cierre libre</option>
-                            <option value="Tubo ovalado">Tubo ovalado</option>
-                            <option value="Tubo ovalado LED">Tubo ovalado LED</option>
-                            <option value="Perfil LED">Perfil LED</option>
-                            <option value="Perfil LED con pestaña">Perfil LED con pestaña</option>
-                            <option value="Correderas de 300mm">Correderas de 300mm</option>
-                            <option value="Correderas de 350mm">Correderas de 350mm</option>
-                            <option value="Correderas de 400mm">Correderas de 400mm</option>
-                            <option value="Correderas de 450mm">Correderas de 450mm</option>
-                            <option value="Correderas de 500mm">Correderas de 500mm</option>
-                            <option value="Bisagras de libro">Bisagras de libro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidadHerraje">Cantidad:</label>
-                        <input type="number" id="cantidadHerraje" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioHerraje">Precio Unitario ($):</label>
-                        <input type="number" id="precioHerraje" min="0" step="0.01" placeholder="0.00">
-                    </div>
-                </div>
-                <button type="button" id="btn-agregar-herraje" class="btn-secondary">➕ Agregar Herraje</button>
-            </div>
-
-            <!-- SECCIÓN 3: LUMINARIA -->
-            <div class="articulo-seccion no-exportar">
-                <h3>3. Luminaria</h3>
-                <div class="grid-inputs">
-                    <div class="form-group span-2">
-                        <label for="tipoLuminaria">Tipo de Elemento:</label>
-                        <select id="tipoLuminaria">
-                            <option value="Cable LED">Cable LED</option>
-                            <option value="Cable calibre 16">Cable calibre 16</option>
-                            <option value="Transformador">Transformador</option>
-                            <option value="Botón">Botón</option>
-                            <option value="LED">LED</option>
-                            <option value="Contactos">Contactos</option>
-                            <option value="Apagadores">Apagadores</option>
-                            <option value="Chalupa de sobreponer">Chalupa de sobreponer</option>
-                            <option value="Pasacables">Pasacables</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidadLuminaria">Cantidad:</label>
-                        <input type="number" id="cantidadLuminaria" min="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioLuminaria">Precio Unitario ($):</label>
-                        <input type="number" id="precioLuminaria" min="0" step="0.01" placeholder="0.00">
-                    </div>
-                </div>
-                <button type="button" id="btn-agregar-luminaria" class="btn-secondary">➕ Agregar Luminaria</button>
-            </div>
-        </form>
-
-        <div class="historial-section">
-            <h3>Artículos Agregados</h3>
-            <div class="tabla-contenedor">
-                <table id="tablaHistorial">
-                    <thead>
-                        <tr>
-                            <th>Concepto</th>
-                            <th>Cant.</th>
-                            <th>P.U.</th>
-                            <th>Subtotal</th>
-                            <th class="no-exportar"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="fila-vacia"><td colspan="5" style="text-align: center; color: #a0aec0;">No hay artículos en la cotización</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="totales-contenedor">
-                <p>Subtotal: <span id="lbl-subtotal">$0.00</span></p>
-                <p id="p-iva">IVA (16%): <span id="lbl-iva">$0.00</span></p>
-                <p class="total-destacado">Total: <span id="lbl-total">$0.00</span></p>
-            </div>
+        <!-- DATOS GENERALES -->
+        <div class="form-group">
+            <label for="cotizador">Quien Cotiza / Empresa:</label>
+            <input type="text" id="cotizador" placeholder="Ej. THM Carpintería">
         </div>
+
+        <div class="form-group">
+            <label for="cliente">Cliente / Destinatario:</label>
+            <input type="text" id="cliente" placeholder="Nombre del cliente">
+        </div>
+
+        <div class="form-group">
+            <label for="select-iva">¿Incluir IVA (16%)?</label>
+            <select id="select-iva">
+                <option value="si" selected>Sí, agregar IVA</option>
+                <option value="no">No, sin IVA</option>
+            </select>
+        </div>
+
+        <!-- SECCIÓN 1: MATERIAL -->
+        <section class="articulo-seccion no-exportar">
+            <h3>1. Material</h3>
+            <div class="grid-inputs">
+                <div class="form-group">
+                    <label for="grosorMaterial">Grosor:</label>
+                    <select id="grosorMaterial">
+                        <option value="15mm">15 mm</option>
+                        <option value="6mm">6 mm</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="marcaMaterial">Tipo / Marca:</label>
+                    <select id="marcaMaterial">
+                        <option value="ARAUCO">ARAUCO</option>
+                        <option value="VESTO">VESTO</option>
+                        <option value="MEL">MEL</option>
+                        <option value="MINA">MINA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cantidadMaterial">Cantidad:</label>
+                    <input type="number" id="cantidadMaterial" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="precioMaterial">Precio Unitario ($):</label>
+                    <input type="number" id="precioMaterial" min="0" step="0.01" placeholder="0.00">
+                </div>
+            </div>
+            <button type="button" id="btn-agregar-material" class="btn-secondary">➕ Agregar Material</button>
+        </section>
+
+        <!-- SECCIÓN 2: HERRAJES -->
+        <section class="articulo-seccion no-exportar">
+            <h3>2. Herrajes</h3>
+            <div class="grid-inputs">
+                <div class="form-group span-2">
+                    <label for="tipoHerraje">Tipo de Herraje:</label>
+                    <select id="tipoHerraje">
+                        <option value="Bisagras cierre suave">Bisagras cierre suave</option>
+                        <option value="Bisagras cierre normal">Bisagras cierre normal</option>
+                        <option value="Bisagras cierre libre">Bisagras cierre libre</option>
+                        <option value="Tubo ovalado">Tubo ovalado</option>
+                        <option value="Tubo ovalado LED">Tubo ovalado LED</option>
+                        <option value="Perfil LED">Perfil LED</option>
+                        <option value="Perfil LED con pestaña">Perfil LED con pestaña</option>
+                        <option value="Correderas de 300mm">Correderas de 300mm</option>
+                        <option value="Correderas de 350mm">Correderas de 350mm</option>
+                        <option value="Correderas de 400mm">Correderas de 400mm</option>
+                        <option value="Correderas de 450mm">Correderas de 450mm</option>
+                        <option value="Correderas de 500mm">Correderas de 500mm</option>
+                        <option value="Bisagras de libro">Bisagras de libro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cantidadHerraje">Cantidad:</label>
+                    <input type="number" id="cantidadHerraje" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="precioHerraje">Precio Unitario ($):</label>
+                    <input type="number" id="precioHerraje" min="0" step="0.01" placeholder="0.00">
+                </div>
+            </div>
+            <button type="button" id="btn-agregar-herraje" class="btn-secondary">➕ Agregar Herraje</button>
+        </section>
+
+        <!-- SECCIÓN 3: LUMINARIA -->
+        <section class="articulo-seccion no-exportar">
+            <h3>3. Luminaria</h3>
+            <div class="grid-inputs">
+                <div class="form-group span-2">
+                    <label for="tipoLuminaria">Tipo de Elemento:</label>
+                    <select id="tipoLuminaria">
+                        <option value="Cable LED">Cable LED</option>
+                        <option value="Cable calibre 16">Cable calibre 16</option>
+                        <option value="Transformador">Transformador</option>
+                        <option value="Botón">Botón</option>
+                        <option value="LED">LED</option>
+                        <option value="Contactos">Contactos</option>
+                        <option value="Apagadores">Apagadores</option>
+                        <option value="Chalupa de sobreponer">Chalupa de sobreponer</option>
+                        <option value="Pasacables">Pasacables</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cantidadLuminaria">Cantidad:</label>
+                    <input type="number" id="cantidadLuminaria" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="precioLuminaria">Precio Unitario ($):</label>
+                    <input type="number" id="precioLuminaria" min="0" step="0.01" placeholder="0.00">
+                </div>
+            </div>
+            <button type="button" id="btn-agregar-luminaria" class="btn-secondary">➕ Agregar Luminaria</button>
+        </section>
+
+        <!-- TABLA DE DETALLE Y TOTALES -->
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Cant.</th>
+                        <th>P.U.</th>
+                        <th>Subtotal</th>
+                        <th class="no-exportar"></th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-articulos">
+                    <tr><td colspan="5" style="text-align: center; color: #718096;">No hay artículos agregados</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="totales-contenedor">
+            <p>Subtotal: <strong id="lbl-subtotal">$0.00</strong></p>
+            <p id="box-iva">IVA (16%): <strong id="lbl-iva">$0.00</strong></p>
+            <p class="total-destacado">Total: <strong id="lbl-total">$0.00</strong></p>
+        </div>
+
     </div>
 
-    <!-- ACCIONES FLOTANTES PARA MÓVIL (PDF / EXCEL) -->
+    <!-- BARRA FLOTANTE MÓVIL PARA EXPORTAR -->
     <div class="barra-acciones-movil no-exportar">
-        <button type="button" id="btn-pdf" class="btn-pdf">📄 PDF</button>
-        <button type="button" id="btn-excel" class="btn-excel">📥 Excel</button>
-    </div>
-
-    <!-- MODAL BORRADORES / VENTANA POPUP -->
-    <div id="modal-cotizaciones" class="modal-overlay no-exportar" style="display: none;">
-        <div class="modal-contenido">
-            <div class="modal-header">
-                <h3>📂 Cotizaciones Guardadas</h3>
-                <button type="button" class="btn-cerrar" onclick="cerrarModalCotizaciones()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="lista-cotizaciones-guardadas"></div>
-            </div>
-        </div>
+        <button type="button" id="btn-pdf" class="btn-pdf">📄 Imprimir / PDF</button>
+        <button type="button" id="btn-excel" class="btn-excel">📥 Descargar Excel</button>
     </div>
 
     <script src="script.js"></script>
