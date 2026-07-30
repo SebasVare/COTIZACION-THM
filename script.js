@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cantidad = parseInt(inputCantidad.value) || 1;
         const precioUnitario = parseFloat(inputPrecio.value) || 0;
 
-        // Construcción de detalles extras
+        // Detalle de herrajes/materiales integrados
         let detalles = [];
         if (material) detalles.push(`Mat: ${material}`);
         if (herraje) detalles.push(`Herr: ${herraje}`);
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         articulosCotizacion.push(nuevoArticulo);
 
-        // Limpieza de campos parciales
+        // Reset de campos
         inputConcepto.value = '';
         selectMaterial.value = '';
         selectHerraje.value = '';
@@ -126,16 +126,16 @@ document.addEventListener('DOMContentLoaded', () => {
         tbodyArticulos.innerHTML = '';
         let subtotalAcumulado = 0;
 
-        articulosCotizacion.forEach((item, index) => {
+        articulosCotizacion.forEach((item) => {
             subtotalAcumulado += item.subtotal;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${item.cantidad}</td>
+                <td><strong>${item.cantidad}</strong></td>
                 <td>${item.concepto}</td>
                 <td>$${item.precioUnitario.toFixed(2)}</td>
-                <td>$${item.subtotal.toFixed(2)}</td>
-                <td><button class="btn-eliminar-item" data-id="${item.id}">🗑️</button></td>
+                <td><strong>$${item.subtotal.toFixed(2)}</strong></td>
+                <td style="text-align: center;"><button class="btn-eliminar-item" data-id="${item.id}">🗑️</button></td>
             `;
             tbodyArticulos.appendChild(tr);
         });
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. NUEVA COTIZACIÓN
     btnMenuNuevo.addEventListener('click', () => {
-        if (confirm('¿Iniciar nueva cotización? Se limpiará el formulario en pantalla.')) {
+        if (confirm('¿Iniciar nueva cotización? Se limpiarán los datos actuales.')) {
             articulosCotizacion = [];
             localStorage.removeItem('articulosCotizacion_actual');
             inputCliente.value = '';
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let misBorradores = JSON.parse(localStorage.getItem('mis_borradores_thm') || '[]');
 
-        // Reemplazar si el folio ya existe o añadir al inicio
+        // Si el folio existe se reemplaza, si no, se agrega al inicio
         const indexExistente = misBorradores.findIndex(b => b.folio === folioActivo);
         if (indexExistente !== -1) {
             misBorradores[indexExistente] = borradorData;
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         listaCotizaciones.innerHTML = '';
 
         if (borradores.length === 0) {
-            listaCotizaciones.innerHTML = '<p style="text-align:center; color:#64748b; padding:15px;">No hay cotizaciones guardadas en este dispositivo.</p>';
+            listaCotizaciones.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No hay cotizaciones guardadas en este dispositivo.</p>';
             return;
         }
 
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listaCotizaciones.appendChild(item);
         });
 
-        // Asignar eventos de los botones dentro del modal
+        // Eventos de los botones dentro del modal
         document.querySelectorAll('.btn-cargar-borrador').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const idx = e.target.getAttribute('data-index');
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Agrega al menos un artículo antes de exportar.');
             return;
         }
-        window.print(); // Abre el diálogo nativo de impresión / Guardar como PDF en móvil
+        window.print();
     });
 
     btnExportarExcel.addEventListener('click', () => {
