@@ -24,7 +24,6 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
@@ -159,6 +158,7 @@ body {
 
 /* Insignia de Folio */
 .folio-container {
+    display: flex;
     justify-content: flex-end;
     align-items: flex-end;
 }
@@ -187,6 +187,8 @@ body {
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
     transition: transform 0.15s, box-shadow 0.15s;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .btn-primario:active {
@@ -303,9 +305,7 @@ th {
     margin-top: 22px;
 }
 
-/* ==========================================
-   MODAL DE BORRADORES / COTIZACIONES GUARDADAS
-   ========================================== */
+/* MODAL DE BORRADORES */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -374,7 +374,6 @@ th {
     flex: 1;
 }
 
-/* Tarjetas dentro del Modal */
 .tarjeta-borrador {
     background: #f8fafc;
     border: 1px solid var(--border-color);
@@ -425,7 +424,21 @@ th {
     font-size: 0.85rem;
 }
 
-/* Responsivo en Teléfonos */
+/* Configuración de Impresión */
+@media print {
+    .app-header, .menu-archivo, .btn-primario, .acciones-exportar, .btn-eliminar-item, .no-exportar {
+        display: none !important;
+    }
+    body {
+        background-color: #fff;
+    }
+    .card {
+        border: none;
+        box-shadow: none;
+    }
+}
+
+/* Responsivo */
 @media (max-width: 480px) {
     .app-header {
         flex-direction: column;
