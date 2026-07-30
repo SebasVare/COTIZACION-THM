@@ -2,185 +2,153 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cotizador THM</title>
-    
-    <!-- PWA Config/Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0d9488">
-    <link rel="icon" type="image/png" href="THM.png">
-
-    <!-- Estilos de la Aplicación -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!-- Encabezado Principal -->
-    <header class="app-header">
-        <div class="brand">
-            <img src="THM.png" alt="Logo THM" class="logo-app">
-            <h1>Cotizador THM</h1>
-        </div>
-        <div class="menu-archivo">
-            <button id="btn-menu-nuevo" class="btn-menu">📄 Nuevo</button>
-            <button id="btn-menu-guardar" class="btn-menu">💾 Guardar</button>
-            <button id="btn-menu-abrir" class="btn-menu">📂 Abrir</button>
-        </div>
-    </header>
-
-    <main class="container">
-        <!-- Tarjeta de Datos Generales -->
-        <section class="card">
-            <div class="card-header">
-                <h2>Datos Generales</h2>
+    <div class="container">
+        <!-- ENCABEZADO -->
+        <header class="app-header">
+            <div class="logo-container">
+                <img src="logo.png" alt="The Home Makers Logo" class="logo">
             </div>
-            <div class="grid-form">
+            <div class="header-info">
+                <h1>Cotizador THM</h1>
+                <span class="folio-badge" id="folio-display">Folio: THM-260729-01</span>
+            </div>
+        </header>
+
+        <!-- BARRA DE ACCIONES -->
+        <div class="acciones-bar">
+            <button type="button" class="btn btn-secondary" onclick="nuevaCotizacion()">📄 Nuevo</button>
+            <button type="button" class="btn btn-primary" onclick="guardarCotizacionModal()">💾 Guardar</button>
+            <button type="button" class="btn btn-info" onclick="abrirModalCotizaciones()">📂 Abrir</button>
+        </div>
+
+        <!-- DATOS GENERALES -->
+        <section class="card">
+            <h2>Datos Generales</h2>
+            <div class="form-grid">
                 <div class="form-group">
-                    <label for="input-cotizador">Cotizador / Vendedor:</label>
-                    <input type="text" id="input-cotizador" placeholder="Nombre de quien cotiza">
+                    <label for="cotizador">Cotizador / Vendedor:</label>
+                    <input type="text" id="cotizador" placeholder="Nombre de quien cotiza">
                 </div>
                 <div class="form-group">
-                    <label for="input-cliente">Cliente:</label>
-                    <input type="text" id="input-cliente" placeholder="Nombre del cliente o proyecto">
+                    <label for="cliente">Cliente / Proyecto:</label>
+                    <input type="text" id="cliente" placeholder="Nombre del cliente o proyecto">
                 </div>
                 <div class="form-group">
-                    <label for="select-iva">Incluir IVA (16%):</label>
-                    <select id="select-iva">
+                    <label for="incluir-iva">Incluir IVA (16%):</label>
+                    <select id="incluir-iva" onchange="calcularTotales()">
                         <option value="si" selected>Sí</option>
                         <option value="no">No</option>
                     </select>
                 </div>
-                <div class="form-group folio-container">
-                    <div id="lbl-folio" class="badge-folio">Folio: Carga...</div>
-                </div>
             </div>
         </section>
 
-        <!-- Formulario para Agregar Artículos -->
+        <!-- SECCIÓN 1: MATERIALES -->
         <section class="card">
-            <div class="card-header">
-                <h2>Agregar Artículo</h2>
+            <h2>1. Materiales (Tableros / Melamina)</h2>
+            <div class="form-inline">
+                <select id="select-material">
+                    <option value="">-- Seleccionar Material --</option>
+                </select>
+                <input type="number" id="cant-material" min="1" value="1" placeholder="Cant.">
+                <button type="button" class="btn btn-success" onclick="agregarMaterial()">+ Agregar Material</button>
             </div>
-            <form id="form-articulo" class="grid-form">
-                <div class="form-group full-width">
-                    <label for="input-concepto">Concepto / Descripción del Mueble:</label>
-                    <input type="text" id="input-concepto" placeholder="Ej. Cocina integral de melamina blanca" required>
-                </div>
-
-                <!-- Sección: Melamina / Tableros -->
-                <div class="form-group">
-                    <label for="select-material">Material / Melamina:</label>
-                    <select id="select-material">
-                        <option value="">-- Seleccionar --</option>
-                        <option value="Melamina Blanca 15mm">Melamina Blanca 15mm</option>
-                        <option value="Melamina Color/Diseño 15mm">Melamina Color/Diseño 15mm</option>
-                        <option value="MDF 15mm Tapa">MDF 15mm Tapa</option>
-                        <option value="Enchapado Encino">Enchapado Encino</option>
-                    </select>
-                </div>
-
-                <!-- Sección: Herrajes -->
-                <div class="form-group">
-                    <label for="select-herraje">Herrajes:</label>
-                    <select id="select-herraje">
-                        <option value="">-- Seleccionar --</option>
-                        <option value="Bisagra Cierre Lento">Bisagra Cierre Lento</option>
-                        <option value="Corredera Extensión 45cm">Corredera Extensión 45cm</option>
-                        <option value="Corredera Oculta Cierre Lento">Corredera Oculta Cierre Lento</option>
-                        <option value="Jaladera Perfil Aluminio">Jaladera Perfil Aluminio</option>
-                    </select>
-                </div>
-
-                <!-- Sección: Luminarias / Iluminación -->
-                <div class="form-group">
-                    <label for="select-luminaria">Luminarias / Perfiles LED:</label>
-                    <select id="select-luminaria">
-                        <option value="">-- Seleccionar --</option>
-                        <option value="Tira LED Cálida + Canal Aluminio">Tira LED Cálida + Canal</option>
-                        <option value="Tira LED Neutra + Canal Aluminio">Tira LED Neutra + Canal</option>
-                        <option value="Sensor de Presencia">Sensor de Presencia</option>
-                        <option value="Transformador / Fuente 12V">Transformador 12V</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="input-cantidad">Cantidad:</label>
-                    <input type="number" id="input-cantidad" min="1" value="1" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="input-precio">Precio Unitario ($):</label>
-                    <input type="number" id="input-precio" min="0" step="0.01" placeholder="0.00" required>
-                </div>
-
-                <div class="form-group full-width">
-                    <button type="submit" id="btn-agregar" class="btn-primario">➕ Agregar Artículo</button>
-                </div>
-            </form>
+            <table class="tabla-cotizacion" id="tabla-materiales">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Cant.</th>
+                        <th>Precio U.</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </section>
 
-        <!-- Tabla de Artículos Cotizados -->
+        <!-- SECCIÓN 2: HERRAJES -->
         <section class="card">
-            <div class="card-header">
-                <h2>Resumen de Cotización</h2>
+            <h2>2. Herrajes</h2>
+            <div class="form-inline">
+                <select id="select-herraje">
+                    <option value="">-- Seleccionar Herraje --</option>
+                </select>
+                <input type="number" id="cant-herraje" min="1" value="1" placeholder="Cant.">
+                <button type="button" class="btn btn-success" onclick="agregarHerraje()">+ Agregar Herraje</button>
             </div>
-            <div class="table-responsive">
-                <table id="tabla-cotizacion">
-                    <thead>
-                        <tr>
-                            <th>Cant.</th>
-                            <th>Concepto / Detalles</th>
-                            <th>P. Unitario</th>
-                            <th>Subtotal</th>
-                            <th style="text-align: center;">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-articulos">
-                        <!-- Carga dinámica -->
-                    </tbody>
-                </table>
-            </div>
+            <table class="tabla-cotizacion" id="tabla-herrajes">
+                <thead>
+                    <tr>
+                        <th>Herraje</th>
+                        <th>Cant.</th>
+                        <th>Precio U.</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
 
-            <!-- Totales -->
-            <div class="resumen-totales">
-                <div class="fila-total">
-                    <span>Subtotal:</span>
-                    <strong id="lbl-subtotal">$0.00</strong>
-                </div>
-                <div class="fila-total" id="box-iva">
-                    <span>IVA (16%):</span>
-                    <strong id="lbl-iva">$0.00</strong>
-                </div>
-                <div class="fila-total gran-total">
-                    <span>Total:</span>
-                    <strong id="lbl-total">$0.00</strong>
-                </div>
+        <!-- SECCIÓN 3: LUMINARIAS / ILUMINACIÓN -->
+        <section class="card">
+            <h2>3. Luminarias e Iluminación</h2>
+            <div class="form-inline">
+                <select id="select-luminaria">
+                    <option value="">-- Seleccionar Luminaria --</option>
+                </select>
+                <input type="number" id="cant-luminaria" min="1" value="1" placeholder="Cant.">
+                <button type="button" class="btn btn-success" onclick="agregarLuminaria()">+ Agregar Luminaria</button>
             </div>
+            <table class="tabla-cotizacion" id="tabla-luminarias">
+                <thead>
+                    <tr>
+                        <th>Luminaria / Accesorio</th>
+                        <th>Cant.</th>
+                        <th>Precio U.</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
 
-            <!-- Botones de Exportación -->
-            <div class="acciones-exportar">
-                <button id="btn-exportar-pdf" class="btn-exito">📄 Exportar PDF</button>
-                <button id="btn-exportar-excel" class="btn-secundario">📊 Exportar Excel</button>
+        <!-- RESUMEN DE TOTALES -->
+        <section class="card card-totales">
+            <h2>Resumen de Cotización</h2>
+            <div class="totales-grid">
+                <div>Subtotal Materiales: <strong id="subtotal-mat">$0.00</strong></div>
+                <div>Subtotal Herrajes: <strong id="subtotal-her">$0.00</strong></div>
+                <div>Subtotal Luminarias: <strong id="subtotal-lum">$0.00</strong></div>
+                <hr>
+                <div>Subtotal General: <strong id="subtotal-general">$0.00</strong></div>
+                <div>IVA (16%): <strong id="monto-iva">$0.00</strong></div>
+                <div class="total-destacado">Total Final: <strong id="total-final">$0.00</strong></div>
             </div>
         </section>
-    </main>
+    </div>
 
-    <!-- Modal Interno para Abrir y Visualizar Cotizaciones Guardadas -->
+    <!-- MODAL BORRADORES -->
     <div id="modal-cotizaciones" class="modal-overlay" style="display: none;">
         <div class="modal-contenido">
             <div class="modal-header">
                 <h3>📂 Cotizaciones Guardadas</h3>
-                <button id="btn-cerrar-modal" class="btn-cerrar">&times;</button>
+                <button type="button" id="btn-cerrar-modal" class="btn-cerrar" onclick="cerrarModalCotizaciones()">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="lista-cotizaciones-guardadas" class="lista-borradores">
-                    <!-- Lista dinámica -->
-                </div>
+                <div id="lista-cotizaciones-guardadas"></div>
             </div>
         </div>
     </div>
 
-    <!-- Script de la Aplicación -->
     <script src="script.js"></script>
 </body>
 </html>
