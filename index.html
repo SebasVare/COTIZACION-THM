@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cotizador Móvil THM</title>
+    <title>Cotizador Móvil</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,15 +11,15 @@
     <!-- MENÚ SUPERIOR DE ARCHIVO -->
     <nav class="menu-archivo no-exportar">
         <button type="button" id="btn-menu-nuevo" class="btn-menu">📄 Nuevo</button>
-        <button type="button" id="btn-menu-abrir" class="btn-menu">📂 Abrir Borrador</button>
-        <button type="button" id="btn-menu-guardar" class="btn-menu btn-highlight">💾 Guardar Borrador</button>
+        <button type="button" id="btn-menu-abrir" class="btn-menu">📂 Abrir Cotización</button>
+        <button type="button" id="btn-menu-guardar" class="btn-menu btn-highlight">💾 Guardar</button>
     </nav>
 
     <div class="container" id="contenido-cotizacion">
         
         <!-- CABECERA DE LA COTIZACIÓN -->
         <header class="header-cotizacion">
-            <img src="THM.png" alt="THM Logo" class="logo-empresa" onerror="this.style.display='none';">
+            <img src="logo.png" alt="Logo" class="logo-empresa" onerror="this.style.display='none';">
             <div>
                 <h1 class="titulo-principal">Cotización</h1>
                 <span id="lbl-folio" class="folio-badge">Folio: --</span>
@@ -29,7 +29,7 @@
         <!-- DATOS GENERALES -->
         <div class="form-group">
             <label for="cotizador">Quien Cotiza / Empresa:</label>
-            <input type="text" id="cotizador" placeholder="Ej. THM Carpintería">
+            <input type="text" id="cotizador" placeholder="Nombre de la empresa o cotizador">
         </div>
 
         <div class="form-group">
@@ -165,6 +165,19 @@
             <p class="total-destacado">Total: <strong id="lbl-total">$0.00</strong></p>
         </div>
 
+    </div>
+
+    <!-- VENTANA MODAL PARA ABRIR GUARDADOS DENTRO DE LA APP -->
+    <div id="modal-lista" class="modal-backdrop no-exportar">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h2>Mis Cotizaciones Guardadas</h2>
+                <button type="button" id="btn-cerrar-modal" class="btn-cerrar">&times;</button>
+            </div>
+            <div id="contenedor-lista-guardados" class="lista-cotizaciones">
+                <!-- Se llena de forma dinámica desde JS -->
+            </div>
+        </div>
     </div>
 
     <!-- BARRA FLOTANTE MÓVIL PARA EXPORTAR -->
