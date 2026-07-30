@@ -94,7 +94,7 @@ label {
 
 input[type="text"], input[type="number"], select {
     width: 100%;
-    padding: 12px; /* Mejor control táctil en celulares */
+    padding: 12px;
     border: 1px solid #cbd5e0;
     border-radius: 8px;
     font-size: 15px;
@@ -116,7 +116,6 @@ input[type="text"], input[type="number"], select {
     margin-bottom: 10px;
 }
 
-/* Grids adaptables para celulares */
 .grid-inputs {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -216,20 +215,116 @@ th {
 .btn-pdf { background-color: #e53e3e; }
 .btn-excel { background-color: #276749; }
 
-/* REGLAS PARA IMPRESIÓN / EXPORTACIÓN DE PDF */
-.exportando-pdf .tabla-contenedor {
-    overflow: visible !important;
+/* ESTILOS DEL MODAL (LISTA DE COTIZACIONES DENTRO DE LA APP) */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
 }
 
-.exportando-pdf input[type="text"] {
-    border: none !important;
-    border-bottom: 1px solid #cbd5e0 !important;
-    background: transparent !important;
-    padding-left: 0 !important;
+.modal-backdrop.activo {
+    display: flex;
+}
+
+.modal-contenido {
+    background: #fff;
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: #1a202c;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.btn-cerrar {
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.lista-cotizaciones {
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tarjeta-cotizacion {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+}
+
+.info-cotizacion strong {
+    display: block;
+    font-size: 14px;
+    color: #2d3748;
+}
+
+.info-cotizacion span {
+    font-size: 12px;
+    color: #718096;
+}
+
+.acciones-cotizacion {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-cargar-cot {
+    background: #3182ce;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-borrar-cot {
+    background: #e53e3e;
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
 @media print {
-    .no-exportar, .menu-archivo, .barra-acciones-movil, .btn-delete-row {
+    .no-exportar, .menu-archivo, .barra-acciones-movil, .btn-delete-row, .modal-backdrop {
         display: none !important;
     }
     body {
