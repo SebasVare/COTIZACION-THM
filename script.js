@@ -47,11 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExportarExcel = document.getElementById('btn-excel');
 
     // Inicialización del Folio y Estado
-    lblFolio.innerText = `Folio: ${obtenerFolioActual(false)}`;
+    if (lblFolio) lblFolio.innerText = `Folio: ${obtenerFolioActual(false)}`;
     cargarEstadoLocal();
-    selectIva.addEventListener('change', actualizarTablaVisual);
+    if (selectIva) selectIva.addEventListener('change', actualizarTablaVisual);
 
-    // FORMATO DE FOLIO DE CORRIDO SIN DIAGONALES: diamesnumero (Ejemplo: 290701)
+    // Guardar cambios en los campos de texto principales al escribir
+    if (inputCotizador) inputCotizador.addEventListener('input', guardarYActualizar);
+    if (inputCliente) inputCliente.addEventListener('input', guardarYActualizar);
+
+    // FORMATO DE FOLIO DE CORRIDO SIN DIAGONALES: diamesnumero (Ejemplo: 300701)
     function obtenerFolioActual(forzarNuevo = false) {
         const fecha = new Date();
         const mes = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -69,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${dia}${mes}${numCotizacion}`;
     }
 
-    // Agregar Artículos
+    // Agregar Artículos - Material
     if (btnAddMaterial) {
         btnAddMaterial.addEventListener('click', () => {
             const concepto = `Material ${selectMarcaMat.value} (${selectGrosorMat.value})`;
@@ -81,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Agregar Artículos - Herraje
     if (btnAddHerraje) {
         btnAddHerraje.addEventListener('click', () => {
             const concepto = `Herraje: ${selectTipoHerraje.value}`;
@@ -92,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Agregar Artículos - Luminaria
     if (btnAddLuminaria) {
         btnAddLuminaria.addEventListener('click', () => {
             const concepto = `Luminaria: ${selectTipoLuminaria.value}`;
@@ -116,19 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function guardarYActualizar() {
         localStorage.setItem('articulosCotizacion_actual', JSON.stringify(articulosCotizacion));
-        localStorage.setItem('cotizador_nombre', inputCotizador.value);
-        localStorage.setItem('cliente_nombre', inputCliente.value);
+        if (inputCotizador) localStorage.setItem('cotizador_nombre', inputCotizador.value);
+        if (inputCliente) localStorage.setItem('cliente_nombre', inputCliente.value);
         actualizarTablaVisual();
     }
 
     function actualizarTablaVisual() {
+        if (!tbodyArticulos) return;
         tbodyArticulos.innerHTML = '';
 
         if (articulosCotizacion.length === 0) {
             tbodyArticulos.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #718096;">No hay artículos agregados</td></tr>`;
-            lblSubtotal.innerText = '$0.00';
-            lblIva.innerText = '$0.00';
-            lblTotal.innerText = '$0.00';
+            if (lblSubtotal) lblSubtotal.innerText = '$0.00';
+            if (lblIva) lblIva.innerText = '$0.00';
+            if (lblTotal) lblTotal.innerText = '$0.00';
             return;
         }
 
@@ -157,21 +164,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        const incluirIva = selectIva.value === 'si';
+        const incluirIva = selectIva ? selectIva.value === 'si' : true;
         const montoIva = incluirIva ? (subtotalAcumulado * 0.16) : 0;
         const totalFinal = subtotalAcumulado + montoIva;
 
-        lblSubtotal.innerText = `$${subtotalAcumulado.toFixed(2)}`;
-        lblIva.innerText = `$${montoIva.toFixed(2)}`;
-        lblTotal.innerText = `$${totalFinal.toFixed(2)}`;
-        boxIva.style.display = incluirIva ? 'block' : 'none';
+        if (lblSubtotal) lblSubtotal.innerText = `$${subtotalAcumulado.toFixed(2)}`;
+        if (lblIva) lblIva.innerText = `$${montoIva.toFixed(2)}`;
+        if (lblTotal) lblTotal.innerText = `$${totalFinal.toFixed(2)}`;
+        if (boxIva) boxIva.style.display = incluirIva ? 'block' : 'none';
     }
 
     function cargarEstadoLocal() {
         const guardados = localStorage.getItem('articulosCotizacion_actual');
         if (guardados) articulosCotizacion = JSON.parse(guardados);
-        inputCotizador.value = localStorage.getItem('cotizador_nombre') || '';
-        inputCliente.value = localStorage.getItem('cliente_nombre') || '';
+        if (inputCotizador) inputCotizador.value = localStorage.getItem('cotizador_nombre') || '';
+        if (inputCliente) inputCliente.value = localStorage.getItem('cliente_nombre') || '';
         actualizarTablaVisual();
     }
 
@@ -180,50 +187,57 @@ document.addEventListener('DOMContentLoaded', () => {
         return JSON.parse(localStorage.getItem('cotizaciones_guardadas_app') || '[]');
     }
 
-    btnMenuGuardar.addEventListener('click', () => {
-        if (articulosCotizacion.length === 0) {
-            alert('Agrega al menos un artículo antes de guardar.');
-            return;
-        }
+    if (btnMenuGuardar) {
+        btnMenuGuardar.addEventListener('click', () => {
+            if (articulosCotizacion.length === 0) {
+                alert('Agrega al menos un artículo antes de guardar.');
+                return;
+            }
 
-        const clienteNombre = inputCliente.value.trim() || 'Cliente Sin Nombre';
-        const folioTexto = lblFolio.innerText.replace('Folio: ', '');
-        const totalTexto = lblTotal.innerText;
+            const clienteNombre = inputCliente ? inputCliente.value.trim() || 'Cliente Sin Nombre' : 'Cliente Sin Nombre';
+            const folioTexto = lblFolio ? lblFolio.innerText.replace('Folio: ', '') : obtenerFolioActual();
+            const totalTexto = lblTotal ? lblTotal.innerText : '$0.00';
 
-        let listaGuardadas = obtenerCotizacionesGuardadas();
+            let listaGuardadas = obtenerCotizacionesGuardadas();
 
-        const nuevaCotizacion = {
-            id: folioTexto,
-            fecha: new Date().toLocaleDateString('es-MX'),
-            folio: folioTexto,
-            cotizador: inputCotizador.value,
-            cliente: clienteNombre,
-            incluirIva: selectIva.value,
-            articulos: articulosCotizacion,
-            total: totalTexto
-        };
+            const nuevaCotizacion = {
+                id: folioTexto,
+                fecha: new Date().toLocaleDateString('es-MX'),
+                folio: folioTexto,
+                cotizador: inputCotizador ? inputCotizador.value : '',
+                cliente: clienteNombre,
+                incluirIva: selectIva ? selectIva.value : 'si',
+                articulos: articulosCotizacion,
+                total: totalTexto
+            };
 
-        const indiceExistente = listaGuardadas.findIndex(c => c.folio === folioTexto);
-        if (indiceExistente !== -1) {
-            listaGuardadas[indiceExistente] = nuevaCotizacion;
-        } else {
-            listaGuardadas.push(nuevaCotizacion);
-        }
+            const indiceExistente = listaGuardadas.findIndex(c => c.folio === folioTexto);
+            if (indiceExistente !== -1) {
+                listaGuardadas[indiceExistente] = nuevaCotizacion;
+            } else {
+                listaGuardadas.push(nuevaCotizacion);
+            }
 
-        localStorage.setItem('cotizaciones_guardadas_app', JSON.stringify(listaGuardadas));
-        alert(`✅ Cotización "${folioTexto}" de (${clienteNombre}) guardada en la app.`);
-    });
+            localStorage.setItem('cotizaciones_guardadas_app', JSON.stringify(listaGuardadas));
+            alert(`✅ Cotización "${folioTexto}" de (${clienteNombre}) guardada en la app.`);
+        });
+    }
 
-    btnMenuAbrir.addEventListener('click', () => {
-        renderizarListaModal();
-        modalLista.classList.add('activo');
-    });
+    if (btnMenuAbrir) {
+        btnMenuAbrir.addEventListener('click', () => {
+            renderizarListaModal();
+            if (modalLista) modalLista.classList.add('activo');
+        });
+    }
 
-    btnCerrarModal.addEventListener('click', () => {
-        modalLista.classList.remove('activo');
-    });
+    if (btnCerrarModal) {
+        btnCerrarModal.addEventListener('click', () => {
+            if (modalLista) modalLista.classList.remove('activo');
+        });
+    }
 
     function renderizarListaModal() {
+        if (!contenedorLista) return;
         const lista = obtenerCotizacionesGuardadas();
         contenedorLista.innerHTML = '';
 
@@ -254,12 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cot = lista.find(item => item.folio === folio);
                 if (cot) {
                     articulosCotizacion = cot.articulos;
-                    inputCotizador.value = cot.cotizador || '';
-                    inputCliente.value = cot.cliente || '';
-                    selectIva.value = cot.incluirIva || 'si';
-                    lblFolio.innerText = `Folio: ${cot.folio}`;
+                    if (inputCotizador) inputCotizador.value = cot.cotizador || '';
+                    if (inputCliente) inputCliente.value = cot.cliente || '';
+                    if (selectIva) selectIva.value = cot.incluirIva || 'si';
+                    if (lblFolio) lblFolio.innerText = `Folio: ${cot.folio}`;
                     guardarYActualizar();
-                    modalLista.classList.remove('activo');
+                    if (modalLista) modalLista.classList.remove('activo');
                 }
             });
         });
@@ -276,32 +290,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    btnMenuNuevo.addEventListener('click', () => {
-        if (confirm('¿Iniciar nueva cotización? Se limpiará el formulario.')) {
-            articulosCotizacion = [];
-            localStorage.removeItem('articulosCotizacion_actual');
-            inputCliente.value = '';
-            lblFolio.innerText = `Folio: ${obtenerFolioActual(true)}`;
-            actualizarTablaVisual();
-        }
-    });
+    if (btnMenuNuevo) {
+        btnMenuNuevo.addEventListener('click', () => {
+            if (confirm('¿Iniciar nueva cotización? Se limpiará el formulario.')) {
+                articulosCotizacion = [];
+                localStorage.removeItem('articulosCotizacion_actual');
+                if (inputCliente) inputCliente.value = '';
+                if (lblFolio) lblFolio.innerText = `Folio: ${obtenerFolioActual(true)}`;
+                actualizarTablaVisual();
+            }
+        });
+    }
 
     // Exportación
-    btnExportarPdf.addEventListener('click', () => {
-        if (articulosCotizacion.length === 0) return alert('Agrega al menos un artículo.');
-        window.print();
-    });
-
-    btnExportarExcel.addEventListener('click', () => {
-        if (articulosCotizacion.length === 0) return alert('Agrega al menos un artículo.');
-        let csv = "Concepto,Cantidad,Precio Unitario,Subtotal\n";
-        articulosCotizacion.forEach(r => {
-            csv += `"${r.concepto}","${r.cantidad}","${r.precioUnitario}","${r.subtotal}"\n`;
+    if (btnExportarPdf) {
+        btnExportarPdf.addEventListener('click', () => {
+            if (articulosCotizacion.length === 0) return alert('Agrega al menos un artículo.');
+            window.print();
         });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Cotizacion_${inputCliente.value || 'General'}.csv`;
-        link.click();
-    });
+    }
+
+    if (btnExportarExcel) {
+        btnExportarExcel.addEventListener('click', () => {
+            if (articulosCotizacion.length === 0) return alert('Agrega al menos un artículo.');
+            let csv = "Concepto,Cantidad,Precio Unitario,Subtotal\n";
+            articulosCotizacion.forEach(r => {
+                csv += `"${r.concepto}","${r.cantidad}","${r.precioUnitario}","${r.subtotal}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            const clienteStr = inputCliente ? inputCliente.value : 'General';
+            link.download = `Cotizacion_${clienteStr || 'General'}.csv`;
+            link.click();
+        });
+    }
 });
