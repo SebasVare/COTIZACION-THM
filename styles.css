@@ -8,7 +8,7 @@ body {
     color: #2d3748;
     margin: 0;
     padding: 0;
-    padding-bottom: 80px; /* Espacio para barra flotante móvil */
+    padding-bottom: 80px; /* Espacio para la barra flotante móvil */
 }
 
 /* MENÚ SUPERIOR DE ARCHIVO */
@@ -56,19 +56,25 @@ body {
     border-bottom: 2px solid #e2e8f0;
     padding-bottom: 12px;
     margin-bottom: 15px;
-    gap: 10px;
+    gap: 12px;
 }
 
+/* LOGO AJUSTADO Y ESTILIZADO */
 .logo-empresa {
-    max-height: 60px;
+    max-height: 42px; /* Reducido para un tamaño elegante y no dominante */
+    max-width: 160px; /* Evita desbordes horizontales en celulares */
     width: auto;
+    height: auto;
     object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05)); /* Sombra ligera */
 }
 
 .titulo-principal {
     margin: 0;
-    font-size: 22px;
+    font-size: 20px;
+    font-weight: 700;
     color: #1a202c;
+    line-height: 1.2;
 }
 
 .folio-badge {
@@ -81,7 +87,7 @@ body {
     border: 1px solid #bee3f8;
 }
 
-/* FORMULARIOS Y GRID MÓVIL */
+/* FORMULARIOS Y GRID */
 .form-group {
     margin-bottom: 12px;
 }
@@ -216,7 +222,7 @@ th {
 .btn-pdf { background-color: #e53e3e; }
 .btn-excel { background-color: #276749; }
 
-/* ESTILOS DEL MODAL */
+/* MODAL */
 .modal-backdrop {
     display: none;
     position: fixed;
