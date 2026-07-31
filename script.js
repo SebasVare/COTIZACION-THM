@@ -325,4 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
             link.click();
         });
     }
+
+    if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(() => console.log('Service Worker registrado con éxito.'))
+    .catch((error) => console.log('Error al registrar Service Worker:', error));
+}
 });
